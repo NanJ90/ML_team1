@@ -28,6 +28,8 @@ from nltk.corpus import stopwords
 # Standardization
 from sklearn.preprocessing import StandardScaler
 
+#pipeline
+from sklearn.pipeline import make_pipeline
 """### EDA Analysis"""
 
 url = 'https://raw.githubusercontent.com/NanJ90/ML_team1/main/inputs.csv'
@@ -69,7 +71,7 @@ def standadize(X):
   X_scaled =scaler.fit_transform(X)
   return X_scaled
 
-def metrics_generator(model, y_test_predicted, X_test, y_test):
+def metrics_generator(model, X_test, y_test):
   y_test_predicted = gaussianNB_clf.predict(X_test)
 
   accuracy_score_test = np.mean(y_test_predicted == y_test)
@@ -99,13 +101,13 @@ X = vectorizer.fit_transform(X.values.astype('U')).toarray()
 #resizing for short size in order to test
 
 # Compute a permutation array
-perm = np.random.permutation(len(y))
+# perm = np.random.permutation(len(y))
 
 # Use the permutation to shuffle X and y in the same way
-X_shuffled = X[perm]
-y_shuffled = y[perm]
-X_tru = X_shuffled[:1000].copy()
-y_tru = y_shuffled[:1000].copy()
+# X_shuffled = X[perm]
+# y_shuffled = y[perm]
+# X_tru = X_shuffled[:1000].copy()
+# y_tru = y_shuffled[:1000].copy()
 # # get the feature names
 # feature_names = vectorizer.get_feature_names()
 # # print the feature names
@@ -121,7 +123,7 @@ y_tru = y_shuffled[:1000].copy()
 
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
-X_scaled =scaler.fit_transform(X_tru)
+X_scaled =scaler.fit_transform(X)
 
 """##Balancing dataset by SMOTE
 
@@ -132,7 +134,7 @@ X_scaled =scaler.fit_transform(X_tru)
 ###balancing dataset
 from imblearn.over_sampling import SMOTE
 sampler = SMOTE(random_state=0)
-X_res, y_res = sampler.fit_resample(X_scaled, y_tru)
+X_res, y_res = sampler.fit_resample(X_scaled, y)
 
 #after oversampling's dataset shape 
 print(X_res.shape)
@@ -157,15 +159,15 @@ X_train, X_test, y_train, y_test = train_test_split(X_res,y_res, test_size=0.2, 
 
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 
-import warnings
-warnings.filterwarnings('ignore')
-param_grid = {'var_smoothing': [0.001, 0.01, 0.1, 1.0]}
-gnb = GaussianNB()
+# import warnings
+# warnings.filterwarnings('ignore')
+# param_grid = {'var_smoothing': [0.001, 0.01, 0.1, 1.0]}
+# gnb = GaussianNB()
 
-gnb = GridSearchCV(gnb, param_grid, scoring='accuracy', cv = 10, verbose=1, n_jobs=-1)
-gnb.fit(X_train,y_train)
+# gnb = GridSearchCV(gnb, param_grid, scoring='recall', cv = 4, verbose=1, n_jobs=-1)
+# gnb.fit(X_train,y_train)
 
-params_optimal = gnb.best_params_
+# params_optimal = gnb.best_params_
 
 # print('Best Score (accuracy): %f'%gnb.best_score_)
 # print('Optimal hyperparameter values: ', params_optimal)
@@ -173,12 +175,15 @@ params_optimal = gnb.best_params_
 
 """####Train the optimal Gaussian NB model"""
 
-gaussianNB_clf = GaussianNB(**params_optimal)
+gaussianNB_clf = GaussianNB(var_smoothing=0.001)
 gaussianNB_clf.fit(X_train,y_train)
+
+pickle.dump(vectorizer, open('vectorizer.pkl', 'wb'))
 pickle.dump(gaussianNB_clf, open('model.pkl','wb'))
 """####Evaluate the optimal gaussian model on test data"""
-# metrics_generator(gaussianNB_clf,y_test_predicted,X_test,y_test)
-
+# metrics_generator(gaussianNB_clf,X_test,y_test)
+# model = pickle.load(open('model.pkl', 'rb'))
+# model.predict(X_test)
 
 
 

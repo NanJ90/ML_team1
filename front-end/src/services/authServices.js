@@ -5,7 +5,7 @@ import axios from 'axios';
 export default {
   login(email, password) {
     return axios.post('/api/predict', {
-      // email: email,
+      email: email,
       password: password
     });
   }
