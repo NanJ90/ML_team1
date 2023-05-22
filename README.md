@@ -1,4 +1,8 @@
-# ML_team1
+# ML_team
+run server: 
+	flask run 
+run front-end:
+	npm run serve
 [notebook](https://colab.research.google.com/drive/1AsvpMDYy5DhRv-G5jj9WeBvvIXkuY4CV?usp=sharing)
 
 Diverse Intelligence datasets:
